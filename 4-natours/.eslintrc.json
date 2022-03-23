@@ -15,7 +15,12 @@
         "noUselessIndex": true
       }
     ],
-
+    //import export  ignore
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "sourceType": "module",
+      "allowImportExportEverywhere": true
+    },
     "spaced-comment": "off",
     "no-console": 0,
     "consistent-return": "off",

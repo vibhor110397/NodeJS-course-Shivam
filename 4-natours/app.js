@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -9,12 +10,35 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const cors = require('cors');
+// const reviewRouter = require('./routes/reviewRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/viewRoutes');
+const cookieParser = require('cookie-parser');
 
 const app = express();
+// cors
+// app.use(cors());
+app.use(
+  cors({
+    origin: '*',
+  })
+);
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
 
 // 1) GLOBAL MIDDLEWARES
+
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Set security HTTP headers
-app.use(helmet());
+// app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  })
+);
 
 // Development logging
 // console.log(process.env.NODE_ENV);
@@ -32,6 +56,8 @@ app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
@@ -53,8 +79,8 @@ app.use(
   })
 );
 
-// Serving static files
-app.use(express.static(`${__dirname}/public`));
+// // Serving static files
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // Test middleware
 app.use((req, res, next) => {
@@ -63,9 +89,12 @@ app.use((req, res, next) => {
 });
 
 // 3) ROUTES
+app.use('/', viewRouter);
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
+
 //Start server
 
 app.all('*', (req, res, next) => {
