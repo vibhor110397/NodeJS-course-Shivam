@@ -14,11 +14,6 @@ exports.getOverview = catchAsync(async (req, res, next) => {
     tours,
   });
 });
-// exports.getTour = (req, res) => {
-//   res.status(200).render('tour', {
-//     tour: 'The Forest Hiker',
-//   });
-// };
 
 exports.getTour = catchAsync(async (req, res, next) => {
   // 1) Get the data, for the requested tour (including reviews and guides)
